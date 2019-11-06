@@ -38,27 +38,29 @@ int main(int argc, char *argv[]) {
         // set_priority(6, 80);
     }
     for (k = 0; k < n; k++) {
-        // int a, b;
-        // struct proc_stat q, *r;
-        // int pd = 4;
-        // waitx(&a, &b);
-        wait();
-        // printf(1, "%d %d\n", a, b);
-        // struct proc_stat *r = &q;
-        // printf(1, "et\n");
+        // wait();
+        int a, b;
+        waitx(&a, &b);
+        printf(1, "Wait time : %d  Run Time : %d\n", a, b);
 
-        // int c = getpinfo(&q, pd);
-        // if (c == 1) {
-        //     printf(1, "%p %p\n", &q, q.pid);
-        //     r = &q;
-        //     printf(1, "%p\n", r->pid);
-        //     // printf(1, "%d \n", *(r->pid));
-        // }
-
-        // printf(1, "%p %p %p %p\n", (q.pid), (q.current_queue), (q.num_run),
-        //        (q.runtime));
-        // waitx(&a, &b);
-        // printf(1, "%d %d\n", a, b);
+#ifdef MLFQ
+        int pd = 4;
+        struct proc_stat q;
+        int c = getpinfo(&q, pd);
+        if (c == 1) {
+            printf(1,
+                   "Pid : %d  runtime : %d num_run : %d current "
+                   "queue: %d\n",
+                   q.pid, q.runtime, q.num_run, q.current_queue);
+            printf(1, "Ticks in ");
+            for (int j = 0; j < 5; j++) {
+                printf(1, "queue %d : %d ", j, q.ticks[j]);
+            }
+            printf(1, "\n");
+        } else {
+            printf(1, "Process not found\n");
+        }
+#endif
     }
     exit();
 }

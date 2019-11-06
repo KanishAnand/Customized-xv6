@@ -11,7 +11,7 @@
 int clkpr[] = {1, 2, 4, 8, 16};
 int beg0 = 0, beg1 = 0, beg2 = 0, beg3 = 0, beg4 = 0;
 int end0 = 0, end1 = 0, end2 = 0, end3 = 0, end4 = 0;
-int time_age = 2;
+int time_age = 50;
 int cnt[] = {0, 0, 0, 0, 0};
 struct proc *q0[1000];
 struct proc *q1[1000];
@@ -22,7 +22,6 @@ struct proc *q4[1000];
 struct {
     struct spinlock lock;
     struct proc proc[NPROC];
-    struct proc_stat stat[NPROC];
 } ptable;
 
 static struct proc *initproc;
@@ -41,15 +40,6 @@ void pinit(void) {
 int cpuid() {
     return mycpu() - cpus;
 }
-
-// void pushq(struct proc *q, struct proc *p, int *end) {
-//     q[*end] = p;
-//     *end += 1;
-// }
-
-// void popq(int *beg) {
-//     *beg++;
-// }
 
 // Must be called with interrupts disabled to avoid the caller being
 // rescheduled between reading lapicid and running through the loop.
@@ -83,63 +73,59 @@ struct proc *myproc(void) {
 
 int getpinfo(struct proc_stat *p, int pid) {
     struct proc *q;
-
-    // for (pp = ptable.stat; pp < &ptable.stat[NPROC]; pp++) {
-    //     if (oo->state == RUNNING || oo->state == RUNNABLE) {
-    //         if (oo->pid == pid) {
-    //             p->pid = pp->pid;
-    //             p->current_queue = pp->current_queue;
-    //             p->num_run = pp->num_run;
-    //             p->runtime = pp->runtime;
-
-    //             for (int j = 0; j < 5; j++) {
-    //                 p->ticks[j] = pp->ticks[j];
-    //             }
-    //             break;
-    //         }
-    //     }
-    //     ++oo;
-    // }
-
+    acquire(&ptable.lock);
     for (q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
-        if (q->state != RUNNABLE)
+        if (q->state != RUNNABLE) {
             continue;
+        }
         if (q->pid == pid) {
-            p->pid = &(q->pid);
-            p->num_run = &(q->num_run);
-            p->current_queue = &(q->qno);
-            p->runtime = &(q->rtime);
-            cprintf("as%d %p %p\n", *(p->pid), p->pid, *p->pid);
+            // p = &(q->stat);
+            p->pid = q->pid;
+            p->runtime = q->stat.runtime;
+            p->current_queue = q->qno;
+            p->num_run = q->stat.num_run;
+            for (int j = 0; j < 5; j++) {
+                p->ticks[j] = q->stat.ticks[j];
+            }
+            release(&ptable.lock);
             return 1;
         }
     }
-
+    release(&ptable.lock);
     return 0;
 }
 
 int aging() {
     acquire(&ptable.lock);
-
     struct proc *p;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-        int tm = ticks - (p->ctime + p->rtime) - p->aging_time;
+        if (p->state != RUNNABLE)
+            continue;
+        int tm = ticks - p->ctime - p->rtime - p->aging_time;
         if (tm > time_age) {
             int no = p->qno;
-            cprintf("KANISH\n");
             if (no == 1) {
                 p->qno = 0;
                 cnt[1]--;
-                for (int i = beg1; i < cnt[1]; i++) {
+                int ind = 0;
+                for (int i = 0; i < cnt[1]; i++) {
+                    if (q1[i]->pid == p->pid) {
+                        ind = i;
+                        break;
+                    }
+                }
+                for (int i = ind; i < cnt[1]; i++) {
                     q1[i] = q1[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[0]; i++) {
-                    if (q0[i] == p) {
+                    if (q0[i]->pid == p->pid) {
                         f = 1;
                         break;
                     }
                 }
                 if (f == 0) {
+                    cprintf("Process with pid %d AGED from 1 to 0\n", p->pid);
                     cnt[0]++;
                     q0[cnt[0] - 1] = p;
                     end0 += 1;
@@ -147,64 +133,87 @@ int aging() {
             } else if (no == 2) {
                 p->qno = 1;
                 cnt[2]--;
-                for (int i = beg2; i < cnt[2]; i++) {
+                int ind = 0;
+                for (int i = 0; i < cnt[2]; i++) {
+                    if (q2[i]->pid == p->pid) {
+                        ind = i;
+                        break;
+                    }
+                }
+                for (int i = ind; i < cnt[2]; i++) {
                     q2[i] = q2[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[1]; i++) {
-                    if (q1[i] == p) {
+                    if (q1[i]->pid == p->pid) {
                         f = 1;
                         break;
                     }
                 }
                 if (f == 0) {
                     cnt[1]++;
+                    cprintf("Process with pid %d AGED from 2 to 1\n", p->pid);
                     q1[cnt[1] - 1] = p;
                     end1 += 1;
                 }
             } else if (no == 3) {
                 p->qno = 2;
                 cnt[3]--;
-                for (int i = beg3; i < cnt[3]; i++) {
+                int ind = 0;
+                for (int i = 0; i < cnt[3]; i++) {
+                    if (q3[i]->pid == p->pid) {
+                        ind = i;
+                        break;
+                    }
+                }
+                for (int i = ind; i < cnt[3]; i++) {
                     q3[i] = q3[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[2]; i++) {
-                    if (q2[i] == p) {
+                    if (q2[i]->pid == p->pid) {
                         f = 1;
                         break;
                     }
                 }
                 if (f == 0) {
                     cnt[2]++;
+                    cprintf("Process with pid %d AGED from 3 to 2\n", p->pid);
                     q2[cnt[2] - 1] = p;
                     end2 += 1;
                 }
             } else if (no == 4) {
                 p->qno = 3;
                 cnt[4]--;
-                for (int i = beg4; i < cnt[4]; i++) {
+                int ind = 0;
+                for (int i = 0; i < cnt[4]; i++) {
+                    if (q4[i]->pid == p->pid) {
+                        ind = i;
+                        break;
+                    }
+                }
+                for (int i = ind; i < cnt[4]; i++) {
                     q4[i] = q4[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[3]; i++) {
-                    if (q3[i] == p) {
+                    if (q3[i]->pid == p->pid) {
                         f = 1;
                         break;
                     }
                 }
                 if (f == 0) {
                     cnt[3]++;
+                    cprintf("Process with pid %d AGED from 4 to 3\n", p->pid);
                     q3[cnt[3] - 1] = p;
                     end3 += 1;
                 }
             }
+            p->aging_time = ticks - (p->ctime + p->rtime);
         }
-
-        p->aging_time = ticks - (p->ctime + p->rtime);
     }
     release(&ptable.lock);
-    return 1;
+    return 0;
 }
 
 // PAGEBREAK: 32
@@ -217,19 +226,6 @@ static struct proc *allocproc(void) {
     char *sp;
 
     acquire(&ptable.lock);
-
-    struct proc_stat *pp = ptable.stat;
-
-    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-        pp->pid = &p->pid;
-        pp->runtime = &p->rtime;
-        pp->num_run = &p->num_run;
-        pp->current_queue = &p->qno;
-        for (int ii = 0; ii < 5; ii++) {
-            pp->ticks[ii] = &p->tick[ii];
-        }
-        ++pp;
-    }
 
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
         if (p->state == UNUSED)
@@ -253,9 +249,13 @@ found:
     p->priority = 60;  // default priority value
     p->pid = nextpid++;
     p->qno = 0;
-    p->num_run = 0;
+    p->stat.pid = p->pid;
+    p->stat.current_queue = 0;
+    p->stat.num_run = 0;
+    p->stat.runtime = 0;
+
     for (int j = 0; j < 5; j++) {
-        p->tick[j] = 0;
+        p->stat.ticks[j] = 0;
     }
     // pushq(&q0, &p, &end0);
     q0[cnt[0]] = p;
@@ -685,8 +685,10 @@ void scheduler(void) {
             q->state = RUNNING;
 
             swtch(&(c->scheduler), q->context);
-            cprintf("PBS: Process %s with pid %d (%d) scheduled to run\n",
-                    q->name, q->pid, q->priority);
+            cprintf(
+                "PBS: Process %s with pid %d and priority %d scheduled to "
+                "run\n",
+                q->name, q->pid, q->priority);
             switchkvm();
 
             // Process is done running for now.
@@ -698,11 +700,9 @@ void scheduler(void) {
 #ifdef MLFQ
         int procfound = 0;
         // first priority queue
-
         if (!procfound) {
             for (int i = 0; i < cnt[0]; i++) {
                 p = q0[i];
-                // cprintf("%d cnt \n", cnt[0]);
                 if (p->state != RUNNABLE)
                     continue;
                 beg0 = i;
@@ -710,14 +710,14 @@ void scheduler(void) {
                 procfound = 1;
                 c->proc = p;
                 switchuvm(p);
-                p->num_run++;
+                // p->num_run++;
+                p->stat.num_run++;
                 p->state = RUNNING;
                 swtch(&(c->scheduler), p->context);
                 cprintf(
                     "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d (rtime %d) (wtime %d)\n",
-                    p->name, p->pid, p->qno, p->rtime,
-                    ticks - p->ctime - p->rtime);
+                    "%d rtime %d\n",
+                    p->name, p->pid, p->qno, p->rtime);
                 switchkvm();
                 c->proc = 0;
                 break;
@@ -736,16 +736,14 @@ void scheduler(void) {
                 procfound = 1;
                 c->proc = p;
                 switchuvm(p);
-                p->num_run++;
+                p->stat.num_run++;
                 p->state = RUNNING;
                 swtch(&(c->scheduler), p->context);
                 cprintf(
                     "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d (rtime %d) (wtime %d)\n",
-                    p->name, p->pid, p->qno, p->rtime,
-                    ticks - p->ctime - p->rtime);
+                    "%d rtime %d\n",
+                    p->name, p->pid, p->qno, p->rtime);
                 switchkvm();
-
                 // Process is done running for now.
                 // It should have changed its p->state before coming back.
                 c->proc = 0;
@@ -761,27 +759,17 @@ void scheduler(void) {
                 if (p->state != RUNNABLE)
                     continue;
                 beg2 = i;
-                // cprintf("%d cnt \n", cnt[2]);
                 procfound = 1;
                 c->proc = p;
                 switchuvm(p);
-                p->num_run++;
+                p->stat.num_run++;
                 p->state = RUNNING;
                 swtch(&(c->scheduler), p->context);
                 cprintf(
                     "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d (rtime %d) (wtime %d)\n",
-                    p->name, p->pid, p->qno, p->rtime,
-                    ticks - p->ctime - p->rtime);
+                    "%d rtime %d\n",
+                    p->name, p->pid, p->qno, p->rtime);
                 switchkvm();
-                // if (p->rtime == clkpr[2]) {
-                //     p->qno = 3;
-                //     // popq(&beg2);
-                //     beg2++;
-                //     // pushq(&q3, p, &end3);
-                //     q3[end3] = p;
-                //     end3 += 1;
-                // }
                 // Process is done running for now.
                 // It should have changed its p->state before coming back.
                 c->proc = 0;
@@ -793,31 +781,20 @@ void scheduler(void) {
         if (!procfound) {
             for (int i = 0; i < cnt[3]; i++) {
                 p = q3[i];
-                // cprintf("%d cnt \n", cnt[3]);
                 if (p->state != RUNNABLE)
                     continue;
                 beg3 = i;
-                // cprintf("%d cnt \n", cnt[3]);
                 procfound = 1;
                 c->proc = p;
                 switchuvm(p);
-                p->num_run++;
+                p->stat.num_run++;
                 p->state = RUNNING;
                 swtch(&(c->scheduler), p->context);
                 cprintf(
                     "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d (rtime %d) (wtime %d)\n",
-                    p->name, p->pid, p->qno, p->rtime,
-                    ticks - p->ctime - p->rtime);
+                    "%d rtime %d\n",
+                    p->name, p->pid, p->qno, p->rtime);
                 switchkvm();
-                // if (p->rtime == clkpr[3]) {
-                //     p->qno = 4;
-                //     // popq(&beg3);
-                //     beg3++;
-                //     // pushq(&q4, p, &end4);
-                //     q4[end4] = p;
-                //     end4 += 1;
-                // }
                 // Process is done running for now.
                 // It should have changed its p->state before coming back.
                 c->proc = 0;
@@ -832,18 +809,16 @@ void scheduler(void) {
                 if (p->state != RUNNABLE)
                     continue;
                 beg4 = i;
-                // cprintf("%d cnt \n", cnt[4]);
                 c->proc = p;
                 switchuvm(p);
-                p->num_run++;
+                p->stat.num_run++;
                 p->state = RUNNING;
                 procfound = 1;
                 swtch(&(c->scheduler), p->context);
                 cprintf(
                     "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d (rtime %d) (wtime %d)\n",
-                    p->name, p->pid, p->qno, p->rtime,
-                    ticks - p->ctime - p->rtime);
+                    "%d rtime %d\n",
+                    p->name, p->pid, p->qno, p->rtime);
                 switchkvm();
                 // Process is done running for now.
                 // It should have changed its p->state before coming back.
@@ -886,7 +861,7 @@ void sched(void) {
 void yield(void) {
     acquire(&ptable.lock);  // DOC: yieldlock
     myproc()->state = RUNNABLE;
-    // cprintf("[YIELD] of proc %d\n", myproc()->pid);
+    cprintf("Yield of process with pid %d\n", myproc()->pid);
     sched();
     release(&ptable.lock);
 }

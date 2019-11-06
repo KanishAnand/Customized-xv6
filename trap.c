@@ -47,18 +47,19 @@ void trap(struct trapframe *tf) {
                 ticks++;
                 wakeup(&ticks);
                 release(&tickslock);
+#ifdef MLFQ
+                aging();
+#endif
 
                 if (myproc()) {
                     if (myproc()->state == RUNNING) {
                         myproc()->rtime++;
+                        myproc()->stat.runtime++;
                         int no = myproc()->qno;
-                        myproc()->tick[no]++;
+                        myproc()->stat.ticks[no]++;
                     } else if (myproc()->state == SLEEPING) {
                         myproc()->iotime++;
                     }
-#ifdef MLFQ
-                    aging();
-#endif
                 }
             }
 
@@ -129,17 +130,22 @@ void trap(struct trapframe *tf) {
     if (myproc() && myproc()->state == RUNNING &&
         tf->trapno == T_IRQ0 + IRQ_TIMER) {
         int no = myproc()->qno;
-        if (myproc()->tick[no] != 0) {
+        if (myproc()->stat.ticks[no] != 0) {
             if (no == 0) {
                 myproc()->qno = 1;
                 cnt[0]--;
-                // cnt[1]++;
+                // int ind = -1;
+                // for (int i = 0; i < cnt[0]; i++) {
+                //     if (q0[i]->pid == myproc()->pid) {
+                //         ind = i;
+                //     }
+                // }
                 for (int i = beg0; i < cnt[0]; i++) {
                     q0[i] = q0[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[1]; i++) {
-                    if (q1[i] == myproc()) {
+                    if (q1[i]->pid == myproc()->pid) {
                         f = 1;
                         break;
                     }
@@ -150,15 +156,21 @@ void trap(struct trapframe *tf) {
                     end1 += 1;
                 }
                 yield();
-            } else if (no == 1 && myproc()->tick[1] % 2 == 0) {
+            } else if (no == 1 && myproc()->stat.ticks[1] % 2 == 0) {
                 myproc()->qno = 2;
                 cnt[1]--;
+                // int ind = 0;
+                // for (int i = 0; i < cnt[1]; i++) {
+                //     if (q1[i] == myproc()) {
+                //         ind = i;
+                //     }
+                // }
                 for (int i = beg1; i < cnt[1]; i++) {
                     q1[i] = q1[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[2]; i++) {
-                    if (q2[i] == myproc()) {
+                    if (q2[i]->pid == myproc()->pid) {
                         f = 1;
                         break;
                     }
@@ -169,15 +181,21 @@ void trap(struct trapframe *tf) {
                     end2 += 1;
                 }
                 yield();
-            } else if (no == 2 && myproc()->tick[2] % 4 == 0) {
+            } else if (no == 2 && myproc()->stat.ticks[2] % 4 == 0) {
                 myproc()->qno = 3;
                 cnt[2]--;
+                // int ind = 0;
+                // for (int i = 0; i < cnt[2]; i++) {
+                //     if (q2[i] == myproc()) {
+                //         ind = i;
+                //     }
+                // }
                 for (int i = beg2; i < cnt[2]; i++) {
                     q2[i] = q2[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[3]; i++) {
-                    if (q3[i] == myproc()) {
+                    if (q3[i]->pid == myproc()->pid) {
                         f = 1;
                         break;
                     }
@@ -188,16 +206,21 @@ void trap(struct trapframe *tf) {
                     end3 += 1;
                 }
                 yield();
-            } else if (no == 3 && myproc()->tick[3] % 8 == 0) {
+            } else if (no == 3 && myproc()->stat.ticks[3] % 8 == 0) {
                 myproc()->qno = 4;
                 cnt[3]--;
-                // cnt[4]++;
+                // int ind = 0;
+                // for (int i = 0; i < cnt[3]; i++) {
+                //     if (q3[i] == myproc()) {
+                //         ind = i;
+                //     }
+                // }
                 for (int i = beg3; i < cnt[3]; i++) {
                     q3[i] = q3[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[4]; i++) {
-                    if (q4[i] == myproc()) {
+                    if (q4[i]->pid == myproc()->pid) {
                         f = 1;
                         break;
                     }
@@ -208,10 +231,16 @@ void trap(struct trapframe *tf) {
                     end4 += 1;
                 }
                 yield();
-            } else if (no == 4 && myproc()->tick[4] % 16 == 0) {
+            } else if (no == 4 && myproc()->stat.ticks[4] % 16 == 0) {
                 // beg4++;
                 q4[cnt[4]] = myproc();
                 end4 += 1;
+                // int ind = 0;
+                // for (int i = 0; i < cnt[4]; i++) {
+                //     if (q4[i] == myproc()) {
+                //         ind = i;
+                //     }
+                // }
                 for (int i = beg4; i < cnt[4]; i++) {
                     q4[i] = q4[i + 1];
                 }

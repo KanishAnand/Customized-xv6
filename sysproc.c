@@ -12,7 +12,7 @@ int sys_fork(void) {
 }
 
 int sys_exit(void) {
-    cprintf("Exiting pid %d\n", myproc()->pid);
+    // cprintf("Exiting pid %d\n", myproc()->pid);
     exit();
     return 0;  // not reached
 }
