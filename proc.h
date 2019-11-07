@@ -54,6 +54,7 @@ struct proc {
     int priority;                     // priority of the process
     int qno;
     int aging_time;
+    int rrtime[5];
     struct proc_stat stat;
 };
 
@@ -83,3 +84,4 @@ extern int end4;
 extern int time_age;
 int check_priority(int prt);
 int aging();
+int graph();

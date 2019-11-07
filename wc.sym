@@ -14,7 +14,7 @@
 00000000 ulib.c
 00000000 printf.c
 00000490 printint
-000008c8 digits.1048
+000008c8 digits.1052
 00000000 umalloc.c
 00000bc0 freep
 00000bc4 base
@@ -25,6 +25,7 @@
 0000041a mknod
 00000290 gets
 00000452 getpid
+00000be0 store
 00000790 malloc
 00000462 sleep
 00000482 getpinfo
@@ -47,10 +48,10 @@
 00000000 main
 000001b0 strcmp
 0000044a dup
-00000be0 buf
+00075ee0 buf
 00000310 stat
 00000ba8 _edata
-00000de0 _end
+000760e0 _end
 00000432 link
 000003d2 exit
 00000360 atoi

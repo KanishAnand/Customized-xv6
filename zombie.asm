@@ -932,7 +932,7 @@ free(void *ap)
 
   bp = (Header*)ap - 1;
   for(p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
- 5b1:	a1 e4 09 00 00       	mov    0x9e4,%eax
+ 5b1:	a1 00 0a 00 00       	mov    0xa00,%eax
 {
  5b6:	89 e5                	mov    %esp,%ebp
  5b8:	57                   	push   %edi
@@ -973,7 +973,7 @@ free(void *ap)
     p->s.ptr = bp;
  5ed:	89 08                	mov    %ecx,(%eax)
   freep = p;
- 5ef:	a3 e4 09 00 00       	mov    %eax,0x9e4
+ 5ef:	a3 00 0a 00 00       	mov    %eax,0xa00
 }
  5f4:	5b                   	pop    %ebx
  5f5:	5e                   	pop    %esi
@@ -1005,7 +1005,7 @@ free(void *ap)
     p->s.size += bp->s.size;
  627:	03 53 fc             	add    -0x4(%ebx),%edx
   freep = p;
- 62a:	a3 e4 09 00 00       	mov    %eax,0x9e4
+ 62a:	a3 00 0a 00 00       	mov    %eax,0xa00
     p->s.size += bp->s.size;
  62f:	89 50 04             	mov    %edx,0x4(%eax)
     p->s.ptr = bp->s.ptr;
@@ -1038,7 +1038,7 @@ malloc(uint nbytes)
   nunits = (nbytes + sizeof(Header) - 1)/sizeof(Header) + 1;
  649:	8b 45 08             	mov    0x8(%ebp),%eax
   if((prevp = freep) == 0){
- 64c:	8b 15 e4 09 00 00    	mov    0x9e4,%edx
+ 64c:	8b 15 00 0a 00 00    	mov    0xa00,%edx
   nunits = (nbytes + sizeof(Header) - 1)/sizeof(Header) + 1;
  652:	8d 78 07             	lea    0x7(%eax),%edi
  655:	c1 ef 03             	shr    $0x3,%edi
@@ -1075,7 +1075,7 @@ malloc(uint nbytes)
       return (void*)(p + 1);
     }
     if(p == freep)
- 691:	39 05 e4 09 00 00    	cmp    %eax,0x9e4
+ 691:	39 05 00 0a 00 00    	cmp    %eax,0xa00
  697:	89 c2                	mov    %eax,%edx
  699:	75 ed                	jne    688 <malloc+0x48>
   p = sbrk(nu * sizeof(Header));
@@ -1094,7 +1094,7 @@ malloc(uint nbytes)
  6b5:	50                   	push   %eax
  6b6:	e8 f5 fe ff ff       	call   5b0 <free>
   return freep;
- 6bb:	8b 15 e4 09 00 00    	mov    0x9e4,%edx
+ 6bb:	8b 15 00 0a 00 00    	mov    0xa00,%edx
       if((p = morecore(nunits)) == 0)
  6c1:	83 c4 10             	add    $0x10,%esp
  6c4:	85 d2                	test   %edx,%edx
@@ -1123,7 +1123,7 @@ malloc(uint nbytes)
         p->s.size = nunits;
  6e4:	89 78 04             	mov    %edi,0x4(%eax)
       freep = prevp;
- 6e7:	89 15 e4 09 00 00    	mov    %edx,0x9e4
+ 6e7:	89 15 00 0a 00 00    	mov    %edx,0xa00
 }
  6ed:	8d 65 f4             	lea    -0xc(%ebp),%esp
       return (void*)(p + 1);
@@ -1137,13 +1137,13 @@ malloc(uint nbytes)
  6f8:	90                   	nop
  6f9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
     base.s.ptr = freep = prevp = &base;
- 700:	c7 05 e4 09 00 00 e8 	movl   $0x9e8,0x9e4
- 707:	09 00 00 
- 70a:	c7 05 e8 09 00 00 e8 	movl   $0x9e8,0x9e8
- 711:	09 00 00 
+ 700:	c7 05 00 0a 00 00 04 	movl   $0xa04,0xa00
+ 707:	0a 00 00 
+ 70a:	c7 05 04 0a 00 00 04 	movl   $0xa04,0xa04
+ 711:	0a 00 00 
     base.s.size = 0;
- 714:	b8 e8 09 00 00       	mov    $0x9e8,%eax
- 719:	c7 05 ec 09 00 00 00 	movl   $0x0,0x9ec
+ 714:	b8 04 0a 00 00       	mov    $0xa04,%eax
+ 719:	c7 05 08 0a 00 00 00 	movl   $0x0,0xa08
  720:	00 00 00 
  723:	e9 44 ff ff ff       	jmp    66c <malloc+0x2c>
  728:	90                   	nop

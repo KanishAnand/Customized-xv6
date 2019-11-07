@@ -41,6 +41,43 @@ int cpuid() {
     return mycpu() - cpus;
 }
 
+int graph() {
+    if (ticks > 800) {
+        return 0;
+    }
+
+    acquire(&ptable.lock);
+    struct proc *p;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        // for (int j = 0; j < 5; j++) {
+        //     store[j][ticks].totaltime = ticks;
+        //     store[j][ticks].qno = -1;
+        // }
+        if (p->pid == 0) {
+            store[0][ticks].totaltime = ticks;
+            store[0][ticks].qno = p->qno;
+        } else if (p->pid == 1) {
+            store[1][ticks].totaltime = ticks;
+            store[1][ticks].qno = p->qno;
+        } else if (p->pid == 2) {
+            store[2][ticks].totaltime = ticks;
+            store[2][ticks].qno = p->qno;
+        } else if (p->pid == 3) {
+            store[3][ticks].totaltime = ticks;
+            store[3][ticks].qno = p->qno;
+        } else if (p->pid == 6) {
+            store[4][ticks].totaltime = ticks;
+            store[4][ticks].qno = p->qno;
+        } else if (p->pid == 7) {
+            store[5][ticks].totaltime = ticks;
+            store[5][ticks].qno = p->qno;
+        }
+    }
+    release(&ptable.lock);
+
+    return 0;
+}
+
 // Must be called with interrupts disabled to avoid the caller being
 // rescheduled between reading lapicid and running through the loop.
 struct cpu *mycpu(void) {
@@ -105,34 +142,37 @@ int aging() {
         if (tm > time_age) {
             int no = p->qno;
             if (no == 1) {
-                p->qno = 0;
-                cnt[1]--;
                 int ind = 0;
                 for (int i = 0; i < cnt[1]; i++) {
-                    if (q1[i]->pid == p->pid) {
+                    if (q1[i] == p) {
                         ind = i;
                         break;
                     }
                 }
+                cnt[1]--;
+                p->qno = 0;
+                p->rrtime[0] = 0;
+                p->rrtime[1] = 0;
+#ifndef GRPH
+                cprintf("%d : Process with pid %d AGED from 1 to 0 rtime %d\n",
+                        ticks, p->pid, p->rtime);
+#endif
                 for (int i = ind; i < cnt[1]; i++) {
                     q1[i] = q1[i + 1];
                 }
                 int f = 0;
                 for (int i = 0; i < cnt[0]; i++) {
-                    if (q0[i]->pid == p->pid) {
+                    if (q0[i] == p) {
                         f = 1;
                         break;
                     }
                 }
                 if (f == 0) {
-                    cprintf("Process with pid %d AGED from 1 to 0\n", p->pid);
                     cnt[0]++;
                     q0[cnt[0] - 1] = p;
                     end0 += 1;
                 }
             } else if (no == 2) {
-                p->qno = 1;
-                cnt[2]--;
                 int ind = 0;
                 for (int i = 0; i < cnt[2]; i++) {
                     if (q2[i]->pid == p->pid) {
@@ -140,6 +180,15 @@ int aging() {
                         break;
                     }
                 }
+                p->qno = 1;
+                p->rrtime[1] = 0;
+                p->rrtime[2] = 0;
+                cnt[2]--;
+#ifndef GRPH
+
+                cprintf("%d : Process with pid %d AGED from 2 to 1 rtime %d\n",
+                        ticks, p->pid, p->rtime);
+#endif
                 for (int i = ind; i < cnt[2]; i++) {
                     q2[i] = q2[i + 1];
                 }
@@ -152,13 +201,10 @@ int aging() {
                 }
                 if (f == 0) {
                     cnt[1]++;
-                    cprintf("Process with pid %d AGED from 2 to 1\n", p->pid);
                     q1[cnt[1] - 1] = p;
                     end1 += 1;
                 }
             } else if (no == 3) {
-                p->qno = 2;
-                cnt[3]--;
                 int ind = 0;
                 for (int i = 0; i < cnt[3]; i++) {
                     if (q3[i]->pid == p->pid) {
@@ -166,6 +212,15 @@ int aging() {
                         break;
                     }
                 }
+                p->rrtime[2] = 0;
+                p->rrtime[3] = 0;
+                p->qno = 2;
+#ifndef GRPH
+
+                cprintf("%d : Process with pid %d AGED from 3 to 2 rtime %d\n",
+                        ticks, p->pid, p->rtime);
+#endif
+                cnt[3]--;
                 for (int i = ind; i < cnt[3]; i++) {
                     q3[i] = q3[i + 1];
                 }
@@ -178,13 +233,10 @@ int aging() {
                 }
                 if (f == 0) {
                     cnt[2]++;
-                    cprintf("Process with pid %d AGED from 3 to 2\n", p->pid);
                     q2[cnt[2] - 1] = p;
                     end2 += 1;
                 }
             } else if (no == 4) {
-                p->qno = 3;
-                cnt[4]--;
                 int ind = 0;
                 for (int i = 0; i < cnt[4]; i++) {
                     if (q4[i]->pid == p->pid) {
@@ -192,6 +244,14 @@ int aging() {
                         break;
                     }
                 }
+                p->rrtime[3] = 0;
+                p->rrtime[4] = 0;
+                p->qno = 3;
+#ifndef GRPH
+                cprintf("%d : Process with pid %d AGED from 4 to 3 rtime %d\n",
+                        ticks, p->pid, p->rtime);
+#endif
+                cnt[4]--;
                 for (int i = ind; i < cnt[4]; i++) {
                     q4[i] = q4[i + 1];
                 }
@@ -204,7 +264,6 @@ int aging() {
                 }
                 if (f == 0) {
                     cnt[3]++;
-                    cprintf("Process with pid %d AGED from 4 to 3\n", p->pid);
                     q3[cnt[3] - 1] = p;
                     end3 += 1;
                 }
@@ -256,6 +315,7 @@ found:
 
     for (int j = 0; j < 5; j++) {
         p->stat.ticks[j] = 0;
+        p->rrtime[j] = 0;
     }
     // pushq(&q0, &p, &end0);
     q0[cnt[0]] = p;
@@ -395,21 +455,20 @@ int fork(void) {
 
     pid = np->pid;
     np->qno = 0;
+#ifndef GRPH
     cprintf("Child with pid %d created\n", pid);
+#endif
 
 #ifdef PBS
-    if (np->pid > 2) {
-        // np->priority = valuesToSet[inc++];
-        np->priority = rand() % 101;
-    }
+    np->priority = pid / 2;
+    // if (np->pid > 2) {
+    //     // np->priority = valuesToSet[inc++];
+    //     np->priority = rand() % 101;
+    // }
 #endif
 
 #ifdef MLFQ
-    // np->qno = 0;
-    // pushq(&q0, &p, &end0);
-    // q0[end0] = np;
-    // end0 += 1;
-    // cnt[0]++;
+
 #endif
 
     acquire(&ptable.lock);
@@ -510,6 +569,29 @@ int wait(void) {
 }
 
 int waitx(int *wtime, int *rtime) {
+#ifdef GRPH
+    for (int i = 0; i < 6; i++) {
+        if (i < 4) {
+            cprintf("PID:%d\n", i);
+        } else if (i == 4) {
+            cprintf("PID: 6\n");
+        } else {
+            cprintf("PID: 7\n");
+        }
+        for (int j = 1; j <= 800; j++) {
+            if (store[i][j].totaltime)
+                cprintf("%d ,", store[i][j].totaltime);
+        }
+        cprintf("\n\n");
+        for (int j = 1; j <= 800; j++) {
+            if (store[i][j].totaltime)
+                cprintf("%d ,", store[i][j].qno);
+        }
+        cprintf("\n\n");
+    }
+    return 0;
+#endif
+
     struct proc *p;
     int havekids, pid;
     struct proc *curproc = myproc();
@@ -553,33 +635,36 @@ int waitx(int *wtime, int *rtime) {
 
 int set_priority(int pid, int priority) {
     struct proc *p;
-    acquire(&ptable.lock);
     int val = -1;  // in order to return old priority of the process
+    acquire(&ptable.lock);
 
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-        if (p->pid == pid) {
+        if (p && p->pid == pid) {
             val = p->priority;
-            // cprintf("d%d", val);
             p->priority = priority;
+            cprintf("set priority of %d to %d\n", p->pid, p->priority);
             break;
         }
     }
+
     release(&ptable.lock);
     return val;
 }
 
 int check_priority(int prt) {
-    struct proc *p;
     acquire(&ptable.lock);
 
+    struct proc *p;
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
         if (p->state != RUNNABLE)
             continue;
+
         if (p->priority <= prt) {
             release(&ptable.lock);
             return 1;
         }
     }
+
     release(&ptable.lock);
     return 0;
 }
@@ -616,9 +701,9 @@ void scheduler(void) {
             c->proc = p;
             switchuvm(p);
             p->state = RUNNING;
-            swtch(&(c->scheduler), p->context);
             cprintf("Round Robin: Process %s with pid %d scheduled to run\n",
                     p->name, p->pid);
+            swtch(&(c->scheduler), p->context);
             switchkvm();
 
             // Process is done running for now.
@@ -653,9 +738,9 @@ void scheduler(void) {
             c->proc = q;
             switchuvm(q);
             q->state = RUNNING;
-            swtch(&(c->scheduler), q->context);
             cprintf("FCFS: Process %s with pid %d scheduled to run\n", q->name,
                     q->pid);
+            swtch(&(c->scheduler), q->context);
             switchkvm();
 
             // Process is done running for now.
@@ -666,7 +751,6 @@ void scheduler(void) {
 
 #ifdef PBS
         // not added set_priority to all defining files till now
-        struct proc *q = NULL;
         int mxprt = 200;
 
         for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
@@ -674,26 +758,42 @@ void scheduler(void) {
                 continue;
 
             if (p->priority < mxprt) {
-                q = p;
                 mxprt = p->priority;
             }
         }
 
-        if (q != NULL) {
-            c->proc = q;
-            switchuvm(q);
-            q->state = RUNNING;
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+            if (p->state != RUNNABLE)
+                continue;
 
-            swtch(&(c->scheduler), q->context);
-            cprintf(
-                "PBS: Process %s with pid %d and priority %d scheduled to "
-                "run\n",
-                q->name, q->pid, q->priority);
-            switchkvm();
-
-            // Process is done running for now.
-            // It should have changed its p->state before coming back.
-            c->proc = 0;
+            // Switch to chosen process.  It is the process's job
+            // to release ptable.lock and then reacquire it
+            // before jumping back to us.
+            if (mxprt == p->priority) {
+                c->proc = p;
+                switchuvm(p);
+                p->state = RUNNING;
+                cprintf(
+                    "PBS: Process %s with pid %d and priority %d scheduled "
+                    "to "
+                    "run\n",
+                    p->name, p->pid, p->priority);
+                swtch(&(c->scheduler), p->context);
+                switchkvm();
+                int mx2 = 101;
+                for (struct proc *p = ptable.proc; p < &ptable.proc[NPROC];
+                     p++) {
+                    if (p->state != RUNNABLE)
+                        continue;
+                    if (mx2 > p->priority)
+                        mx2 = p->priority;
+                }
+                if (mx2 < mxprt)
+                    break;
+                // Process is done running for now.
+                // It should have changed its p->state before coming back.
+                c->proc = 0;
+            }
         }
 #endif
 
@@ -710,14 +810,19 @@ void scheduler(void) {
                 procfound = 1;
                 c->proc = p;
                 switchuvm(p);
-                // p->num_run++;
                 p->stat.num_run++;
                 p->state = RUNNING;
-                swtch(&(c->scheduler), p->context);
+#ifndef GRPH
                 cprintf(
-                    "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d rtime %d\n",
-                    p->name, p->pid, p->qno, p->rtime);
+                    "%d : MLFQ: Process %s with pid %d scheduled to "
+                    "run in "
+                    "queue "
+                    "%d rtime %d wtime %d\n",
+                    ticks, p->name, p->pid, p->qno, p->rtime,
+                    ticks - p->rtime - p->ctime - p->aging_time);
+#endif
+                // p->num_run++;
+                swtch(&(c->scheduler), p->context);
                 switchkvm();
                 c->proc = 0;
                 break;
@@ -738,14 +843,21 @@ void scheduler(void) {
                 switchuvm(p);
                 p->stat.num_run++;
                 p->state = RUNNING;
-                swtch(&(c->scheduler), p->context);
+#ifndef GRPH
                 cprintf(
-                    "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d rtime %d\n",
-                    p->name, p->pid, p->qno, p->rtime);
+                    "%d : MLFQ: Process %s with pid %d scheduled to "
+                    "run in "
+                    "queue "
+                    "%d rtime %d wtime %d\n",
+                    ticks, p->name, p->pid, p->qno, p->rtime,
+                    ticks - p->rtime - p->ctime - p->aging_time);
+#endif
+                swtch(&(c->scheduler), p->context);
+
                 switchkvm();
                 // Process is done running for now.
-                // It should have changed its p->state before coming back.
+                // It should have changed its p->state before coming
+                // back.
                 c->proc = 0;
                 break;
             }
@@ -764,14 +876,21 @@ void scheduler(void) {
                 switchuvm(p);
                 p->stat.num_run++;
                 p->state = RUNNING;
-                swtch(&(c->scheduler), p->context);
+#ifndef GRPH
                 cprintf(
-                    "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d rtime %d\n",
-                    p->name, p->pid, p->qno, p->rtime);
+                    "%d : MLFQ: Process %s with pid %d scheduled to "
+                    "run in "
+                    "queue "
+                    "%d rtime %d wtime %d\n",
+                    ticks, p->name, p->pid, p->qno, p->rtime,
+                    ticks - p->rtime - p->ctime - p->aging_time);
+#endif
+                swtch(&(c->scheduler), p->context);
+
                 switchkvm();
                 // Process is done running for now.
-                // It should have changed its p->state before coming back.
+                // It should have changed its p->state before coming
+                // back.
                 c->proc = 0;
                 break;
             }
@@ -789,14 +908,21 @@ void scheduler(void) {
                 switchuvm(p);
                 p->stat.num_run++;
                 p->state = RUNNING;
-                swtch(&(c->scheduler), p->context);
+#ifndef GRPH
                 cprintf(
-                    "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d rtime %d\n",
-                    p->name, p->pid, p->qno, p->rtime);
+                    "%d : MLFQ: Process %s with pid %d scheduled to "
+                    "run in "
+                    "queue "
+                    "%d rtime %d wtime %d\n",
+                    ticks, p->name, p->pid, p->qno, p->rtime,
+                    ticks - p->rtime - p->ctime - p->aging_time);
+#endif
+                swtch(&(c->scheduler), p->context);
+
                 switchkvm();
                 // Process is done running for now.
-                // It should have changed its p->state before coming back.
+                // It should have changed its p->state before coming
+                // back.
                 c->proc = 0;
                 break;
             }
@@ -814,14 +940,20 @@ void scheduler(void) {
                 p->stat.num_run++;
                 p->state = RUNNING;
                 procfound = 1;
-                swtch(&(c->scheduler), p->context);
+#ifndef GRPH
                 cprintf(
-                    "MLFQ: Process %s with pid %d scheduled to run in queue "
-                    "%d rtime %d\n",
-                    p->name, p->pid, p->qno, p->rtime);
+                    "%d : MLFQ: Process %s with pid %d scheduled to "
+                    "run in "
+                    "queue "
+                    "%d rtime %d wtime %d\n",
+                    ticks, p->name, p->pid, p->qno, p->rtime,
+                    ticks - p->rtime - p->ctime - p->aging_time);
+#endif
+                swtch(&(c->scheduler), p->context);
                 switchkvm();
                 // Process is done running for now.
-                // It should have changed its p->state before coming back.
+                // It should have changed its p->state before coming
+                // back.
                 c->proc = 0;
                 break;
             }
@@ -861,7 +993,9 @@ void sched(void) {
 void yield(void) {
     acquire(&ptable.lock);  // DOC: yieldlock
     myproc()->state = RUNNABLE;
-    cprintf("Yield of process with pid %d\n", myproc()->pid);
+#ifndef GRPH
+    // cprintf("Yield of process with pid %d\n", myproc()->pid);
+#endif
     sched();
     release(&ptable.lock);
 }

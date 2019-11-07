@@ -48,6 +48,7 @@ void trap(struct trapframe *tf) {
                 wakeup(&ticks);
                 release(&tickslock);
 #ifdef MLFQ
+                graph();
                 aging();
 #endif
 
@@ -56,6 +57,7 @@ void trap(struct trapframe *tf) {
                         myproc()->rtime++;
                         myproc()->stat.runtime++;
                         int no = myproc()->qno;
+                        myproc()->rrtime[no]++;
                         myproc()->stat.ticks[no]++;
                     } else if (myproc()->state == SLEEPING) {
                         myproc()->iotime++;
@@ -130,17 +132,19 @@ void trap(struct trapframe *tf) {
     if (myproc() && myproc()->state == RUNNING &&
         tf->trapno == T_IRQ0 + IRQ_TIMER) {
         int no = myproc()->qno;
-        if (myproc()->stat.ticks[no] != 0) {
+        if (myproc()->rrtime[no] != 0) {
             if (no == 0) {
+                int ind = -1;
+                for (int i = 0; i < cnt[0]; i++) {
+                    if (q0[i]->pid == myproc()->pid) {
+                        ind = i;
+                    }
+                }
+                myproc()->rrtime[0] = 0;
+                myproc()->rrtime[1] = 0;
                 myproc()->qno = 1;
                 cnt[0]--;
-                // int ind = -1;
-                // for (int i = 0; i < cnt[0]; i++) {
-                //     if (q0[i]->pid == myproc()->pid) {
-                //         ind = i;
-                //     }
-                // }
-                for (int i = beg0; i < cnt[0]; i++) {
+                for (int i = ind; i < cnt[0]; i++) {
                     q0[i] = q0[i + 1];
                 }
                 int f = 0;
@@ -151,21 +155,30 @@ void trap(struct trapframe *tf) {
                     }
                 }
                 if (f == 0) {
+#ifndef GRPH
+                    cprintf(
+                        "%d :Process with pid %d SHIFTED from 0 to 1 rtime "
+                        "%d\n",
+                        ticks, myproc()->pid, myproc()->rtime);
+#endif
                     cnt[1]++;
                     q1[cnt[1] - 1] = myproc();
                     end1 += 1;
                 }
                 yield();
-            } else if (no == 1 && myproc()->stat.ticks[1] % 2 == 0) {
+            } else if (no == 1 && myproc()->rrtime[1] % 2 == 0) {
+                int ind = 0;
+                for (int i = 0; i < cnt[1]; i++) {
+                    if (q1[i] == myproc()) {
+                        ind = i;
+                        break;
+                    }
+                }
+                myproc()->rrtime[1] = 0;
+                myproc()->rrtime[2] = 0;
                 myproc()->qno = 2;
                 cnt[1]--;
-                // int ind = 0;
-                // for (int i = 0; i < cnt[1]; i++) {
-                //     if (q1[i] == myproc()) {
-                //         ind = i;
-                //     }
-                // }
-                for (int i = beg1; i < cnt[1]; i++) {
+                for (int i = ind; i < cnt[1]; i++) {
                     q1[i] = q1[i + 1];
                 }
                 int f = 0;
@@ -176,21 +189,30 @@ void trap(struct trapframe *tf) {
                     }
                 }
                 if (f == 0) {
+#ifndef GRPH
+                    cprintf(
+                        "%d :Process with pid %d SHIFTED from 0 to 1 rtime "
+                        "%d\n",
+                        ticks, myproc()->pid, myproc()->rtime);
+#endif
                     cnt[2]++;
                     q2[cnt[2] - 1] = myproc();
                     end2 += 1;
                 }
                 yield();
-            } else if (no == 2 && myproc()->stat.ticks[2] % 4 == 0) {
+            } else if (no == 2 && myproc()->rrtime[2] % 4 == 0) {
+                int ind = 0;
+                for (int i = 0; i < cnt[2]; i++) {
+                    if (q2[i] == myproc()) {
+                        ind = i;
+                        break;
+                    }
+                }
+                myproc()->rrtime[2] = 0;
+                myproc()->rrtime[3] = 0;
                 myproc()->qno = 3;
                 cnt[2]--;
-                // int ind = 0;
-                // for (int i = 0; i < cnt[2]; i++) {
-                //     if (q2[i] == myproc()) {
-                //         ind = i;
-                //     }
-                // }
-                for (int i = beg2; i < cnt[2]; i++) {
+                for (int i = ind; i < cnt[2]; i++) {
                     q2[i] = q2[i + 1];
                 }
                 int f = 0;
@@ -201,21 +223,30 @@ void trap(struct trapframe *tf) {
                     }
                 }
                 if (f == 0) {
+#ifndef GRPH
+                    cprintf(
+                        "%d :Process with pid %d SHIFTED from 0 to 1 rtime "
+                        "%d\n",
+                        ticks, myproc()->pid, myproc()->rtime);
+#endif
                     cnt[3]++;
                     q3[cnt[3] - 1] = myproc();
                     end3 += 1;
                 }
                 yield();
-            } else if (no == 3 && myproc()->stat.ticks[3] % 8 == 0) {
+            } else if (no == 3 && myproc()->rrtime[3] % 8 == 0) {
+                int ind = 0;
+                for (int i = 0; i < cnt[3]; i++) {
+                    if (q3[i] == myproc()) {
+                        ind = i;
+                        break;
+                    }
+                }
+                myproc()->rrtime[3] = 0;
+                myproc()->rrtime[4] = 0;
                 myproc()->qno = 4;
                 cnt[3]--;
-                // int ind = 0;
-                // for (int i = 0; i < cnt[3]; i++) {
-                //     if (q3[i] == myproc()) {
-                //         ind = i;
-                //     }
-                // }
-                for (int i = beg3; i < cnt[3]; i++) {
+                for (int i = ind; i < cnt[3]; i++) {
                     q3[i] = q3[i + 1];
                 }
                 int f = 0;
@@ -226,22 +257,30 @@ void trap(struct trapframe *tf) {
                     }
                 }
                 if (f == 0) {
+#ifndef GRPH
+                    cprintf(
+                        "%d :Process with pid %d SHIFTED from 0 to 1 rtime "
+                        "%d\n",
+                        ticks, myproc()->pid, myproc()->rtime);
+#endif
                     cnt[4]++;
                     q4[cnt[4] - 1] = myproc();
                     end4 += 1;
                 }
                 yield();
-            } else if (no == 4 && myproc()->stat.ticks[4] % 16 == 0) {
+            } else if (no == 4 && myproc()->rrtime[4] % 16 == 0) {
                 // beg4++;
+                int ind = 0;
+                myproc()->rrtime[4] = 0;
+                for (int i = 0; i < cnt[4]; i++) {
+                    if (q4[i] == myproc()) {
+                        ind = i;
+                        break;
+                    }
+                }
                 q4[cnt[4]] = myproc();
                 end4 += 1;
-                // int ind = 0;
-                // for (int i = 0; i < cnt[4]; i++) {
-                //     if (q4[i] == myproc()) {
-                //         ind = i;
-                //     }
-                // }
-                for (int i = beg4; i < cnt[4]; i++) {
+                for (int i = ind; i < cnt[4]; i++) {
                     q4[i] = q4[i + 1];
                 }
                 yield();

@@ -1,7 +1,7 @@
 00000000 .text
 00000a38 .rodata
 00000aa0 .eh_frame
-00000dac .bss
+00000dc0 .bss
 00000000 .comment
 00000000 .debug_aranges
 00000000 .debug_info
@@ -11,14 +11,14 @@
 00000000 .debug_loc
 00000000 .debug_ranges
 00000000 ls.c
-00000dac buf.1059
+00000dc0 buf.1063
 00000000 ulib.c
 00000000 printf.c
 00000640 printint
-00000a8c digits.1048
+00000a8c digits.1052
 00000000 umalloc.c
-00000dbc freep
-00000dc0 base
+00000dd0 freep
+00000dd4 base
 00000330 strcpy
 00000060 fmtname
 000006e0 printf
@@ -27,6 +27,7 @@
 000005ca mknod
 00000440 gets
 00000602 getpid
+00000de0 store
 00000940 malloc
 00000612 sleep
 00000632 getpinfo
@@ -50,7 +51,7 @@
 000005fa dup
 000004c0 stat
 00000dac _edata
-00000dc8 _end
+000760e0 _end
 000005e2 link
 00000100 ls
 00000582 exit

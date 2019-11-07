@@ -535,7 +535,7 @@ main(int argc, char *argv[])
   i = read(fd, buf, 2000);
      559:	83 c4 0c             	add    $0xc,%esp
      55c:	68 d0 07 00 00       	push   $0x7d0
-     561:	68 e0 85 00 00       	push   $0x85e0
+     561:	68 e0 d8 07 00       	push   $0x7d8e0
      566:	53                   	push   %ebx
      567:	e8 4e 33 00 00       	call   38ba <read>
   if(i == 2000){
@@ -648,10 +648,10 @@ main(int argc, char *argv[])
     if(write(fd, buf, 512) != 512){
      6a0:	83 ec 04             	sub    $0x4,%esp
     ((int*)buf)[0] = i;
-     6a3:	89 1d e0 85 00 00    	mov    %ebx,0x85e0
+     6a3:	89 1d e0 d8 07 00    	mov    %ebx,0x7d8e0
     if(write(fd, buf, 512) != 512){
      6a9:	68 00 02 00 00       	push   $0x200
-     6ae:	68 e0 85 00 00       	push   $0x85e0
+     6ae:	68 e0 d8 07 00       	push   $0x7d8e0
      6b3:	56                   	push   %esi
      6b4:	e8 09 32 00 00       	call   38c2 <write>
      6b9:	83 c4 10             	add    $0x10,%esp
@@ -686,7 +686,7 @@ main(int argc, char *argv[])
      700:	3d 00 02 00 00       	cmp    $0x200,%eax
      705:	0f 85 9f 00 00 00    	jne    7aa <writetest1+0x14a>
     if(((int*)buf)[0] != n){
-     70b:	a1 e0 85 00 00       	mov    0x85e0,%eax
+     70b:	a1 e0 d8 07 00       	mov    0x7d8e0,%eax
      710:	39 d8                	cmp    %ebx,%eax
      712:	75 7f                	jne    793 <writetest1+0x133>
     n++;
@@ -694,7 +694,7 @@ main(int argc, char *argv[])
     i = read(fd, buf, 512);
      717:	83 ec 04             	sub    $0x4,%esp
      71a:	68 00 02 00 00       	push   $0x200
-     71f:	68 e0 85 00 00       	push   $0x85e0
+     71f:	68 e0 d8 07 00       	push   $0x7d8e0
      724:	56                   	push   %esi
      725:	e8 90 31 00 00       	call   38ba <read>
     if(i == 0){
@@ -799,19 +799,19 @@ main(int argc, char *argv[])
      841:	ff 35 08 5e 00 00    	pushl  0x5e08
      847:	e8 b4 31 00 00       	call   3a00 <printf>
   name[0] = 'a';
-     84c:	c6 05 e0 a5 00 00 61 	movb   $0x61,0xa5e0
+     84c:	c6 05 e0 f8 07 00 61 	movb   $0x61,0x7f8e0
   name[2] = '\0';
-     853:	c6 05 e2 a5 00 00 00 	movb   $0x0,0xa5e2
+     853:	c6 05 e2 f8 07 00 00 	movb   $0x0,0x7f8e2
      85a:	83 c4 10             	add    $0x10,%esp
      85d:	8d 76 00             	lea    0x0(%esi),%esi
     fd = open(name, O_CREATE|O_RDWR);
      860:	83 ec 08             	sub    $0x8,%esp
     name[1] = '0' + i;
-     863:	88 1d e1 a5 00 00    	mov    %bl,0xa5e1
+     863:	88 1d e1 f8 07 00    	mov    %bl,0x7f8e1
      869:	83 c3 01             	add    $0x1,%ebx
     fd = open(name, O_CREATE|O_RDWR);
      86c:	68 02 02 00 00       	push   $0x202
-     871:	68 e0 a5 00 00       	push   $0xa5e0
+     871:	68 e0 f8 07 00       	push   $0x7f8e0
      876:	e8 67 30 00 00       	call   38e2 <open>
     close(fd);
      87b:	89 04 24             	mov    %eax,(%esp)
@@ -821,18 +821,18 @@ main(int argc, char *argv[])
      886:	80 fb 64             	cmp    $0x64,%bl
      889:	75 d5                	jne    860 <createtest+0x30>
   name[0] = 'a';
-     88b:	c6 05 e0 a5 00 00 61 	movb   $0x61,0xa5e0
+     88b:	c6 05 e0 f8 07 00 61 	movb   $0x61,0x7f8e0
   name[2] = '\0';
-     892:	c6 05 e2 a5 00 00 00 	movb   $0x0,0xa5e2
+     892:	c6 05 e2 f8 07 00 00 	movb   $0x0,0x7f8e2
      899:	bb 30 00 00 00       	mov    $0x30,%ebx
      89e:	66 90                	xchg   %ax,%ax
     unlink(name);
      8a0:	83 ec 0c             	sub    $0xc,%esp
     name[1] = '0' + i;
-     8a3:	88 1d e1 a5 00 00    	mov    %bl,0xa5e1
+     8a3:	88 1d e1 f8 07 00    	mov    %bl,0x7f8e1
      8a9:	83 c3 01             	add    $0x1,%ebx
     unlink(name);
-     8ac:	68 e0 a5 00 00       	push   $0xa5e0
+     8ac:	68 e0 f8 07 00       	push   $0x7f8e0
      8b1:	e8 3c 30 00 00       	call   38f2 <unlink>
   for(i = 0; i < 52; i++){
      8b6:	83 c4 10             	add    $0x10,%esp
@@ -1000,7 +1000,7 @@ main(int argc, char *argv[])
     while((n = read(fds[0], buf, cc)) > 0){
      a5d:	83 ec 04             	sub    $0x4,%esp
      a60:	57                   	push   %edi
-     a61:	68 e0 85 00 00       	push   $0x85e0
+     a61:	68 e0 d8 07 00       	push   $0x7d8e0
      a66:	ff 75 e0             	pushl  -0x20(%ebp)
      a69:	e8 4c 2e 00 00       	call   38ba <read>
      a6e:	83 c4 10             	add    $0x10,%esp
@@ -1010,7 +1010,7 @@ main(int argc, char *argv[])
      a79:	89 d9                	mov    %ebx,%ecx
      a7b:	8d 34 18             	lea    (%eax,%ebx,1),%esi
      a7e:	f7 d9                	neg    %ecx
-     a80:	38 9c 0b e0 85 00 00 	cmp    %bl,0x85e0(%ebx,%ecx,1)
+     a80:	38 9c 0b e0 d8 07 00 	cmp    %bl,0x7d8e0(%ebx,%ecx,1)
      a87:	8d 53 01             	lea    0x1(%ebx),%edx
      a8a:	75 1b                	jne    aa7 <pipe1+0x97>
       for(i = 0; i < n; i++){
@@ -1052,7 +1052,7 @@ main(int argc, char *argv[])
      adc:	29 da                	sub    %ebx,%edx
      ade:	66 90                	xchg   %ax,%ax
         buf[i] = seq++;
-     ae0:	88 84 03 e0 85 00 00 	mov    %al,0x85e0(%ebx,%eax,1)
+     ae0:	88 84 03 e0 d8 07 00 	mov    %al,0x7d8e0(%ebx,%eax,1)
      ae7:	83 c0 01             	add    $0x1,%eax
       for(i = 0; i < 1033; i++)
      aea:	39 d0                	cmp    %edx,%eax
@@ -1060,7 +1060,7 @@ main(int argc, char *argv[])
       if(write(fds[1], buf, 1033) != 1033){
      aee:	83 ec 04             	sub    $0x4,%esp
      af1:	68 09 04 00 00       	push   $0x409
-     af6:	68 e0 85 00 00       	push   $0x85e0
+     af6:	68 e0 d8 07 00       	push   $0x7d8e0
      afb:	ff 75 e4             	pushl  -0x1c(%ebp)
      afe:	e8 bf 2d 00 00       	call   38c2 <write>
      b03:	83 c4 10             	add    $0x10,%esp
@@ -1206,7 +1206,7 @@ main(int argc, char *argv[])
   if(read(pfds[0], buf, sizeof(buf)) != 1){
      c4d:	83 c4 0c             	add    $0xc,%esp
      c50:	68 00 20 00 00       	push   $0x2000
-     c55:	68 e0 85 00 00       	push   $0x85e0
+     c55:	68 e0 d8 07 00       	push   $0x7d8e0
      c5a:	ff 75 e0             	pushl  -0x20(%ebp)
      c5d:	e8 58 2c 00 00       	call   38ba <read>
      c62:	83 c4 10             	add    $0x10,%esp
@@ -1697,7 +1697,7 @@ main(int argc, char *argv[])
     while((n = read(fd, buf, sizeof(buf))) > 0){
     10b0:	83 ec 04             	sub    $0x4,%esp
     10b3:	68 00 20 00 00       	push   $0x2000
-    10b8:	68 e0 85 00 00       	push   $0x85e0
+    10b8:	68 e0 d8 07 00       	push   $0x7d8e0
     10bd:	ff 75 d4             	pushl  -0x2c(%ebp)
     10c0:	e8 f5 27 00 00       	call   38ba <read>
     10c5:	83 c4 10             	add    $0x10,%esp
@@ -1707,7 +1707,7 @@ main(int argc, char *argv[])
     10cc:	31 d2                	xor    %edx,%edx
     10ce:	66 90                	xchg   %ax,%ax
         if(buf[j] != '0'+i){
-    10d0:	0f be b2 e0 85 00 00 	movsbl 0x85e0(%edx),%esi
+    10d0:	0f be b2 e0 d8 07 00 	movsbl 0x7d8e0(%edx),%esi
     10d7:	83 ff 01             	cmp    $0x1,%edi
     10da:	19 c9                	sbb    %ecx,%ecx
     10dc:	83 c1 31             	add    $0x31,%ecx
@@ -1771,13 +1771,13 @@ main(int argc, char *argv[])
     1166:	68 00 02 00 00       	push   $0x200
     116b:	53                   	push   %ebx
     116c:	bb 0c 00 00 00       	mov    $0xc,%ebx
-    1171:	68 e0 85 00 00       	push   $0x85e0
+    1171:	68 e0 d8 07 00       	push   $0x7d8e0
     1176:	e8 85 25 00 00       	call   3700 <memset>
     117b:	83 c4 10             	add    $0x10,%esp
         if((n = write(fd, buf, 500)) != 500){
     117e:	83 ec 04             	sub    $0x4,%esp
     1181:	68 f4 01 00 00       	push   $0x1f4
-    1186:	68 e0 85 00 00       	push   $0x85e0
+    1186:	68 e0 d8 07 00       	push   $0x7d8e0
     118b:	56                   	push   %esi
     118c:	e8 31 27 00 00       	call   38c2 <write>
     1191:	83 c4 10             	add    $0x10,%esp
@@ -2141,19 +2141,19 @@ main(int argc, char *argv[])
   if(read(fd, buf, sizeof(buf)) != 5){
     14d9:	83 c4 0c             	add    $0xc,%esp
     14dc:	68 00 20 00 00       	push   $0x2000
-    14e1:	68 e0 85 00 00       	push   $0x85e0
+    14e1:	68 e0 d8 07 00       	push   $0x7d8e0
     14e6:	53                   	push   %ebx
     14e7:	e8 ce 23 00 00       	call   38ba <read>
     14ec:	83 c4 10             	add    $0x10,%esp
     14ef:	83 f8 05             	cmp    $0x5,%eax
     14f2:	0f 85 87 00 00 00    	jne    157f <unlinkread+0x14f>
   if(buf[0] != 'h'){
-    14f8:	80 3d e0 85 00 00 68 	cmpb   $0x68,0x85e0
+    14f8:	80 3d e0 d8 07 00 68 	cmpb   $0x68,0x7d8e0
     14ff:	75 6b                	jne    156c <unlinkread+0x13c>
   if(write(fd, buf, 10) != 10){
     1501:	83 ec 04             	sub    $0x4,%esp
     1504:	6a 0a                	push   $0xa
-    1506:	68 e0 85 00 00       	push   $0x85e0
+    1506:	68 e0 d8 07 00       	push   $0x7d8e0
     150b:	53                   	push   %ebx
     150c:	e8 b1 23 00 00       	call   38c2 <write>
     1511:	83 c4 10             	add    $0x10,%esp
@@ -2307,7 +2307,7 @@ main(int argc, char *argv[])
   if(read(fd, buf, sizeof(buf)) != 5){
     168c:	83 ec 04             	sub    $0x4,%esp
     168f:	68 00 20 00 00       	push   $0x2000
-    1694:	68 e0 85 00 00       	push   $0x85e0
+    1694:	68 e0 d8 07 00       	push   $0x7d8e0
     1699:	50                   	push   %eax
     169a:	e8 1b 22 00 00       	call   38ba <read>
     169f:	83 c4 10             	add    $0x10,%esp
@@ -3092,14 +3092,14 @@ main(int argc, char *argv[])
   cc = read(fd, buf, sizeof(buf));
     1dfe:	83 ec 04             	sub    $0x4,%esp
     1e01:	68 00 20 00 00       	push   $0x2000
-    1e06:	68 e0 85 00 00       	push   $0x85e0
+    1e06:	68 e0 d8 07 00       	push   $0x7d8e0
     1e0b:	50                   	push   %eax
     1e0c:	e8 a9 1a 00 00       	call   38ba <read>
   if(cc != 2 || buf[0] != 'f'){
     1e11:	83 c4 10             	add    $0x10,%esp
     1e14:	83 f8 02             	cmp    $0x2,%eax
     1e17:	0f 85 3a 03 00 00    	jne    2157 <subdir+0x447>
-    1e1d:	80 3d e0 85 00 00 66 	cmpb   $0x66,0x85e0
+    1e1d:	80 3d e0 d8 07 00 66 	cmpb   $0x66,0x7d8e0
     1e24:	0f 85 2d 03 00 00    	jne    2157 <subdir+0x447>
   close(fd);
     1e2a:	83 ec 0c             	sub    $0xc,%esp
@@ -3172,7 +3172,7 @@ main(int argc, char *argv[])
   if(read(fd, buf, sizeof(buf)) != 2){
     1efd:	83 ec 04             	sub    $0x4,%esp
     1f00:	68 00 20 00 00       	push   $0x2000
-    1f05:	68 e0 85 00 00       	push   $0x85e0
+    1f05:	68 e0 d8 07 00       	push   $0x7d8e0
     1f0a:	50                   	push   %eax
     1f0b:	e8 aa 19 00 00       	call   38ba <read>
     1f10:	83 c4 10             	add    $0x10,%esp
@@ -3664,7 +3664,7 @@ main(int argc, char *argv[])
       int cc = write(fd, buf, sz);
     243b:	83 ec 04             	sub    $0x4,%esp
     243e:	53                   	push   %ebx
-    243f:	68 e0 85 00 00       	push   $0x85e0
+    243f:	68 e0 d8 07 00       	push   $0x7d8e0
     2444:	50                   	push   %eax
     2445:	e8 78 14 00 00       	call   38c2 <write>
       if(cc != sz){
@@ -3674,7 +3674,7 @@ main(int argc, char *argv[])
       int cc = write(fd, buf, sz);
     2451:	83 ec 04             	sub    $0x4,%esp
     2454:	53                   	push   %ebx
-    2455:	68 e0 85 00 00       	push   $0x85e0
+    2455:	68 e0 d8 07 00       	push   $0x7d8e0
     245a:	56                   	push   %esi
     245b:	e8 62 14 00 00       	call   38c2 <write>
       if(cc != sz){
@@ -3757,12 +3757,12 @@ main(int argc, char *argv[])
     2518:	83 ec 04             	sub    $0x4,%esp
     251b:	68 58 02 00 00       	push   $0x258
     2520:	53                   	push   %ebx
-    2521:	68 e0 85 00 00       	push   $0x85e0
+    2521:	68 e0 d8 07 00       	push   $0x7d8e0
     2526:	e8 d5 11 00 00       	call   3700 <memset>
     if(write(fd, buf, 600) != 600){
     252b:	83 c4 0c             	add    $0xc,%esp
     252e:	68 58 02 00 00       	push   $0x258
-    2533:	68 e0 85 00 00       	push   $0x85e0
+    2533:	68 e0 d8 07 00       	push   $0x7d8e0
     2538:	56                   	push   %esi
     2539:	e8 84 13 00 00       	call   38c2 <write>
     253e:	83 c4 10             	add    $0x10,%esp
@@ -3799,12 +3799,12 @@ main(int argc, char *argv[])
     2580:	3d 2c 01 00 00       	cmp    $0x12c,%eax
     2585:	0f 85 91 00 00 00    	jne    261c <bigfile+0x14c>
     if(buf[0] != i/2 || buf[299] != i/2){
-    258b:	0f be 05 e0 85 00 00 	movsbl 0x85e0,%eax
+    258b:	0f be 05 e0 d8 07 00 	movsbl 0x7d8e0,%eax
     2592:	89 fa                	mov    %edi,%edx
     2594:	d1 fa                	sar    %edx
     2596:	39 d0                	cmp    %edx,%eax
     2598:	75 6e                	jne    2608 <bigfile+0x138>
-    259a:	0f be 15 0b 87 00 00 	movsbl 0x870b,%edx
+    259a:	0f be 15 0b da 07 00 	movsbl 0x7da0b,%edx
     25a1:	39 d0                	cmp    %edx,%eax
     25a3:	75 63                	jne    2608 <bigfile+0x138>
     total += cc;
@@ -3814,7 +3814,7 @@ main(int argc, char *argv[])
     cc = read(fd, buf, 300);
     25ae:	83 ec 04             	sub    $0x4,%esp
     25b1:	68 2c 01 00 00       	push   $0x12c
-    25b6:	68 e0 85 00 00       	push   $0x85e0
+    25b6:	68 e0 d8 07 00       	push   $0x7d8e0
     25bb:	56                   	push   %esi
     25bc:	e8 f9 12 00 00       	call   38ba <read>
     if(cc < 0){
@@ -5057,14 +5057,14 @@ main(int argc, char *argv[])
     3211:	e8 ea 07 00 00       	call   3a00 <printf>
     if(uninit[i] != '\0'){
     3216:	83 c4 10             	add    $0x10,%esp
-    3219:	80 3d c0 5e 00 00 00 	cmpb   $0x0,0x5ec0
+    3219:	80 3d c0 b1 07 00 00 	cmpb   $0x0,0x7b1c0
     3220:	75 39                	jne    325b <bsstest+0x5b>
   for(i = 0; i < sizeof(uninit); i++){
     3222:	b8 01 00 00 00       	mov    $0x1,%eax
     3227:	89 f6                	mov    %esi,%esi
     3229:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
     if(uninit[i] != '\0'){
-    3230:	80 b8 c0 5e 00 00 00 	cmpb   $0x0,0x5ec0(%eax)
+    3230:	80 b8 c0 b1 07 00 00 	cmpb   $0x0,0x7b1c0(%eax)
     3237:	75 22                	jne    325b <bsstest+0x5b>
   for(i = 0; i < sizeof(uninit); i++){
     3239:	83 c0 01             	add    $0x1,%eax
@@ -5286,7 +5286,7 @@ main(int argc, char *argv[])
       int cc = write(fd, buf, 512);
     3442:	83 ec 04             	sub    $0x4,%esp
     3445:	68 00 02 00 00       	push   $0x200
-    344a:	68 e0 85 00 00       	push   $0x85e0
+    344a:	68 e0 d8 07 00       	push   $0x7d8e0
     344f:	57                   	push   %edi
     3450:	e8 6d 04 00 00       	call   38c2 <write>
       if(cc < 512)

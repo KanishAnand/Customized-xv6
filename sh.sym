@@ -12,11 +12,11 @@
 00000000 .debug_loc
 00000000 .debug_ranges
 00000000 sh.c
-000018a0 buf.1086
+000018a0 buf.1090
 00000000 ulib.c
 00000000 printf.c
 00000dd0 printint
-000012b8 digits.1048
+000012b8 digits.1052
 00000000 umalloc.c
 00001904 freep
 00001908 base
@@ -31,6 +31,7 @@
 00000800 parsepipe
 00000a50 parsecmd
 00000430 backcmd
+00001920 store
 000005d0 peek
 00000640 parseredirs
 00000460 gettoken
@@ -69,7 +70,7 @@
 00000360 redircmd
 00000c50 stat
 00001882 _edata
-00001910 _end
+00076c20 _end
 00000d72 link
 00000d12 exit
 00000ca0 atoi

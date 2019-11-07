@@ -99,7 +99,7 @@ main(int argc, char *argv[])
     if (write(1, buf, n) != n) {
   a0:	83 ec 04             	sub    $0x4,%esp
   a3:	53                   	push   %ebx
-  a4:	68 60 0b 00 00       	push   $0xb60
+  a4:	68 60 5e 07 00       	push   $0x75e60
   a9:	6a 01                	push   $0x1
   ab:	e8 d2 02 00 00       	call   382 <write>
   b0:	83 c4 10             	add    $0x10,%esp
@@ -108,7 +108,7 @@ main(int argc, char *argv[])
   while((n = read(fd, buf, sizeof(buf))) > 0) {
   b7:	83 ec 04             	sub    $0x4,%esp
   ba:	68 00 02 00 00       	push   $0x200
-  bf:	68 60 0b 00 00       	push   $0xb60
+  bf:	68 60 5e 07 00       	push   $0x75e60
   c4:	56                   	push   %esi
   c5:	e8 b0 02 00 00       	call   37a <read>
   ca:	83 c4 10             	add    $0x10,%esp

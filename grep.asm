@@ -352,7 +352,7 @@ int matchstar(int c, char *re, char *text)
  245:	83 ec 04             	sub    $0x4,%esp
  248:	29 f0                	sub    %esi,%eax
  24a:	50                   	push   %eax
- 24b:	8d 86 40 0e 00 00    	lea    0xe40(%esi),%eax
+ 24b:	8d 86 40 61 07 00    	lea    0x76140(%esi),%eax
  251:	50                   	push   %eax
  252:	ff 75 0c             	pushl  0xc(%ebp)
  255:	e8 40 03 00 00       	call   59a <read>
@@ -362,9 +362,9 @@ int matchstar(int c, char *re, char *text)
     m += n;
  265:	01 c6                	add    %eax,%esi
     p = buf;
- 267:	bb 40 0e 00 00       	mov    $0xe40,%ebx
+ 267:	bb 40 61 07 00       	mov    $0x76140,%ebx
     buf[m] = '\0';
- 26c:	c6 86 40 0e 00 00 00 	movb   $0x0,0xe40(%esi)
+ 26c:	c6 86 40 61 07 00 00 	movb   $0x0,0x76140(%esi)
  273:	89 75 e4             	mov    %esi,-0x1c(%ebp)
  276:	8d 76 00             	lea    0x0(%esi),%esi
  279:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
@@ -411,7 +411,7 @@ int matchstar(int c, char *re, char *text)
  2d0:	eb ae                	jmp    280 <grep+0x50>
  2d2:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
     if(p == buf)
- 2d8:	81 fb 40 0e 00 00    	cmp    $0xe40,%ebx
+ 2d8:	81 fb 40 61 07 00    	cmp    $0x76140,%ebx
  2de:	8b 75 e4             	mov    -0x1c(%ebp),%esi
  2e1:	74 2d                	je     310 <grep+0xe0>
     if(m > 0){
@@ -422,12 +422,12 @@ int matchstar(int c, char *re, char *text)
       memmove(buf, p, m);
  2ed:	83 ec 04             	sub    $0x4,%esp
       m -= p - buf;
- 2f0:	2d 40 0e 00 00       	sub    $0xe40,%eax
+ 2f0:	2d 40 61 07 00       	sub    $0x76140,%eax
  2f5:	29 c6                	sub    %eax,%esi
       memmove(buf, p, m);
  2f7:	56                   	push   %esi
  2f8:	53                   	push   %ebx
- 2f9:	68 40 0e 00 00       	push   $0xe40
+ 2f9:	68 40 61 07 00       	push   $0x76140
  2fe:	e8 4d 02 00 00       	call   550 <memmove>
  303:	83 c4 10             	add    $0x10,%esp
  306:	e9 35 ff ff ff       	jmp    240 <grep+0x10>

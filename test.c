@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
             // wait();
         } else {  // child
             // printf(1, "Child %d created\n", getpid());
-            for (z = 0; z < 3000000.0; z += 0.1)
+            for (z = 0; z < 300000.0; z += 0.1)
                 x = x +
                     3.14 * 89.64;  // useless calculations to consume CPU time
             exit();
@@ -39,11 +39,13 @@ int main(int argc, char *argv[]) {
     }
     for (k = 0; k < n; k++) {
         // wait();
+#ifndef GRPH
         int a, b;
         waitx(&a, &b);
-        printf(1, "Wait time : %d  Run Time : %d\n", a, b);
+#endif
 
 #ifdef MLFQ
+#ifndef GRPH
         int pd = 4;
         struct proc_stat q;
         int c = getpinfo(&q, pd);
@@ -60,6 +62,7 @@ int main(int argc, char *argv[]) {
         } else {
             printf(1, "Process not found\n");
         }
+#endif
 #endif
     }
     exit();
