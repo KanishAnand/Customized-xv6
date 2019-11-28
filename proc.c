@@ -124,6 +124,12 @@ int getpinfo(struct proc_stat *p, int pid) {
             for (int j = 0; j < 5; j++) {
                 p->ticks[j] = q->stat.ticks[j];
             }
+            cprintf("pid : %d\n", p->pid);
+            cprintf("current queue : %d\n", p->current_queue);
+            cprintf("num_run : %d\n", p->num_run);
+            cprintf("runtime : %d\n", p->runtime);
+            cprintf("ticks : %d %d %d %d %d\n", p->ticks[0], p->ticks[1],
+                    p->ticks[2], p->ticks[3], p->ticks[4]);
             release(&ptable.lock);
             return 1;
         }
