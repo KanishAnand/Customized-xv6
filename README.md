@@ -32,3 +32,5 @@ Default value is Round Robbin Scheduling
 Also it includes graphs to show results of MLFQ scheduling policy with various types of process and one to show running of MLFQ with same type of process.
 
 ![img](graph.png)
+
+![img](graph_child.png)
