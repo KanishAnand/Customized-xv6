@@ -30,5 +30,6 @@ FLAG can be PBS(Priority Based Scheduling),FCFS(First come first server Scheduli
 Default value is Round Robbin Scheduling
 
 Also it includes graphs to show results of MLFQ scheduling policy with various types of process
-[!img](graph.png)
+
+![img](graph.png)
 
