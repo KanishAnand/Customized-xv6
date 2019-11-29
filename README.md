@@ -12,8 +12,8 @@ This is a preemptive policy. In this process with higher priority runs first as 
 MLFQ scheduler allows processes to move between different priority queues based
 on their behavior and CPU bursts. If a process uses too much CPU time, it is pushed
 to a lower priority queue, leaving I/O bound and interactive processes for higher
-priority queues. Also, to prevent starvation and aging. In this total of 5 queue's are implemented.
-The time-slice for priority 0 should be 1 timer tick. The times-slice for priority 1
+priority queues. Also, to prevent starvation aging is implemented. In this total of 5 queue's are implemented.
+The time-slice for priority 0 is 1 timer tick. The times-slice for priority 1
 is 2 timer ticks; for priority 2, it is 4 timer ticks; for priority 3, it is 8 timer ticks;
 for priority 4, it is 16 timer ticks.
 
