@@ -1,6 +1,5 @@
 # Scheduling Algorithms implemented in MIT-xv6
 
-
 # Usage
 ```
 make clean
