@@ -29,7 +29,7 @@ make qemu SCHEDULER = <FLAG>
 FLAG can be PBS(Priority Based Scheduling),FCFS(First come first server Scheduling),MLFQ(Multilevel Feedback Queue Scheduling)
 Default value is Round Robbin Scheduling
 
-Also it includes graphs to show results of MLFQ scheduling policy with various types of process
+Also it includes graphs to show results of MLFQ scheduling policy with various types of process and one to show running of MLFQ with same type of process.
 
 ![img](graph.png)
-
+![img](graph_with_only_child process.png)
